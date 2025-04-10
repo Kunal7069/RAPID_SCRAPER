@@ -5,16 +5,17 @@ const Home = () => {
   const [formData, setFormData] = useState({
     type: "person",
     username: "",
-    activity_comments: "yes",
-    activity_reactions: "yes",
+    access_token: "",
+    activity_comments: "no",
+    activity_reactions: "no",
     profile_info: "no",
     post_scrap: "no",
-    post_comments: "yes",
+    post_comments: "no",
     post_reactions: "no",
-    post_limit: 1000,
-    comment_limit: 400000,
-    reaction_limit: 55,
-    media_flag: "yes",
+    post_limit: 50,
+    comment_limit: 100,
+    reaction_limit: 100,
+    media_flag: "no",
   });
 
   const [response, setResponse] = useState(null);
@@ -31,10 +32,13 @@ const Home = () => {
     setLoading(true);
     setResponse(null);
     try {
+      const { access_token, ...bodyData } = formData;
       const res = await fetch('https://vigil-6sgu.onrender.com/rapid/get-activity-data', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        headers: { 'Content-Type': 'application/json',
+          'Authorization': `Bearer ${formData.access_token}`
+         },
+        body: JSON.stringify(bodyData),
       });
       const data = await res.json();
       setResponse(data);
@@ -144,6 +148,17 @@ const Home = () => {
   </div>
 
       <form onSubmit={handleSubmit} style={{ backgroundColor: '#fafafa', padding: '2rem', borderRadius: '10px', boxShadow: '0 0 8px rgba(0,0,0,0.1)' }}>
+            <div style={formSectionStyle}>
+        <label style={labelStyle}>Access Token</label>
+        <input
+          type="text"
+          name="access_token"
+          value={formData.access_token || ""}
+          onChange={handleChange}
+          required
+          style={inputStyle}
+        />
+      </div>
         <div style={formSectionStyle}>
           <label style={labelStyle}>Type</label>
           <select name="type" value={formData.type} onChange={handleChange} style={selectStyle}>
