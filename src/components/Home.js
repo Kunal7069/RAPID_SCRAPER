@@ -1,9 +1,12 @@
+
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+
 const Home = () => {
   const [creditsBought, setCreditsBought] = useState("50000");
   const [totalCost, setTotalCost] = useState("175");
-  const [calculatedCost, setCalculatedCost] = useState(null);
+  const [minimumCalculatedCost, setMinimumCalculatedCost] = useState(null);
+  const [maximumCalculatedCost, setMaximumCalculatedCost] = useState(null);
   const [formData, setFormData] = useState({
     type: "person",
     username: "",
@@ -56,28 +59,29 @@ const Home = () => {
   const handleCreditEstimate = async () => {
     setLoading(true);
     setCreditEstimate(null);
-    setCalculatedCost(null);
+    setMinimumCalculatedCost(null);
+    setMaximumCalculatedCost(null);
     try {
-      const res = await fetch(
-        "https://vigil-6sgu.onrender.com/read-rapid/credit-estimation",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json",
-            Authorization: `Bearer ${formData.access_token}`,
-           },
-          body: JSON.stringify(formData),
-        }
-      );
+      const res = await fetch("https://vigil-6sgu.onrender.com/read-rapid/credit-estimation", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${formData.access_token}`,
+        },
+        body: JSON.stringify(formData),
+      });
       const data = await res.json();
-      console.log(data);
       setCreditEstimate(data);
 
-      if (data.total_credits && creditsBought && totalCost) {
-        console.log(data.total_credits, creditsBought, totalCost);
+      if (data.max_credits && creditsBought && totalCost) {
         const costPerCredit = parseFloat(totalCost) / parseFloat(creditsBought);
-        const estimatedCost = costPerCredit * parseFloat(data.total_credits);
-        console.log(estimatedCost);
-        setCalculatedCost(estimatedCost.toFixed(4));
+        const estimatedCost = costPerCredit * parseFloat(data.max_credits);
+        setMaximumCalculatedCost(estimatedCost.toFixed(4));
+      }
+      if (data.min_credits && creditsBought && totalCost) {
+        const costPerCredit = parseFloat(totalCost) / parseFloat(creditsBought);
+        const estimatedCost = costPerCredit * parseFloat(data.min_credits);
+        setMinimumCalculatedCost(estimatedCost.toFixed(4));
       }
     } catch (err) {
       console.error(err);
@@ -86,6 +90,7 @@ const Home = () => {
       setLoading(false);
     }
   };
+
   const handleDownload = () => {
     if (!response) return;
 
@@ -140,7 +145,7 @@ const Home = () => {
       style={{
         padding: "2rem 3rem",
         fontFamily: "Arial, sans-serif",
-        maxWidth: "650px",
+        maxWidth: "1200px",
         margin: "0 auto",
       }}
     >
@@ -174,140 +179,165 @@ const Home = () => {
         </Link>
       </div>
 
-      <form
-        onSubmit={handleSubmit}
-        style={{
-          backgroundColor: "#fafafa",
-          padding: "2rem",
-          borderRadius: "10px",
-          boxShadow: "0 0 8px rgba(0,0,0,0.1)",
-        }}
-      >
-        <div style={formSectionStyle}>
-          <label style={labelStyle}>Access Token</label>
-          <input
-            type="text"
-            name="access_token"
-            value={formData.access_token || ""}
-            onChange={handleChange}
-            required
-            style={inputStyle}
-          />
-        </div>
-        <div style={formSectionStyle}>
-          <label style={labelStyle}>Type</label>
-          <select
-            name="type"
-            value={formData.type}
-            onChange={handleChange}
-            style={selectStyle}
-          >
-            <option value="person">Person</option>
-            <option value="company">Company</option>
-          </select>
-        </div>
-
-        <div style={formSectionStyle}>
-          <label style={labelStyle}>Username</label>
-          <input
-            type="text"
-            name="username"
-            value={formData.username}
-            onChange={handleChange}
-            required
-            style={inputStyle}
-          />
-        </div>
-
-        <hr style={{ margin: "1.5rem 0" }} />
-
-        <h3 style={{ marginBottom: "1rem" }}>Activity & Post Options</h3>
-        {[
-          "profile_info",
-          "post_scrap",
-          "activity_comments",
-          "activity_reactions",
-          "post_comments",
-          "post_reactions",
-          "media_flag",
-        ].map((field) => (
-          <div key={field} style={formSectionStyle}>
-            <label style={labelStyle}>{field.replace(/_/g, " ")}</label>
-            <select
-              name={field}
-              value={formData[field]}
-              onChange={handleChange}
-              style={selectStyle}
-            >
-              <option value="yes">Yes</option>
-              <option value="no">No</option>
-            </select>
-          </div>
-        ))}
-
-        <hr style={{ margin: "1.5rem 0" }} />
-
-        <h3 style={{ marginBottom: "1rem" }}>Limits</h3>
-        {["post_limit", "comment_limit", "reaction_limit"].map((field) => (
-          <div key={field} style={formSectionStyle}>
-            <label style={labelStyle}>{field.replace(/_/g, " ")}</label>
+      <div style={{ display: "flex", gap: "2rem", alignItems: "flex-start" }}>
+        {/* LEFT: Form */}
+        <form
+          onSubmit={handleSubmit}
+          style={{
+            backgroundColor: "#fafafa",
+            padding: "2rem",
+            borderRadius: "10px",
+            boxShadow: "0 0 8px rgba(0,0,0,0.1)",
+            flex: 3,
+          }}
+        >
+          <div style={formSectionStyle}>
+            <label style={labelStyle}>Access Token</label>
             <input
-              type="number"
-              name={field}
-              value={formData[field]}
+              type="text"
+              name="access_token"
+              value={formData.access_token || ""}
               onChange={handleChange}
               required
               style={inputStyle}
             />
           </div>
-        ))}
+          <div style={formSectionStyle}>
+            <label style={labelStyle}>Type</label>
+            <select
+              name="type"
+              value={formData.type}
+              onChange={handleChange}
+              style={selectStyle}
+            >
+              <option value="person">Person</option>
+              <option value="company">Company</option>
+            </select>
+          </div>
 
+          <div style={formSectionStyle}>
+            <label style={labelStyle}>Username</label>
+            <input
+              type="text"
+              name="username"
+              value={formData.username}
+              onChange={handleChange}
+              required
+              style={inputStyle}
+            />
+          </div>
+
+          <hr style={{ margin: "1.5rem 0" }} />
+
+          <h3 style={{ marginBottom: "1rem" }}>Activity & Post Options</h3>
+          {[
+            "profile_info",
+            "post_scrap",
+            "activity_comments",
+            "activity_reactions",
+            "post_comments",
+            "post_reactions",
+            "media_flag",
+          ].map((field) => (
+            <div key={field} style={formSectionStyle}>
+              <label style={labelStyle}>{field.replace(/_/g, " ")}</label>
+              <select
+                name={field}
+                value={formData[field]}
+                onChange={handleChange}
+                style={selectStyle}
+              >
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+              </select>
+            </div>
+          ))}
+
+          <hr style={{ margin: "1.5rem 0" }} />
+
+          <h3 style={{ marginBottom: "1rem" }}>Limits</h3>
+          {["post_limit", "comment_limit", "reaction_limit"].map((field) => (
+            <div key={field} style={formSectionStyle}>
+              <label style={labelStyle}>{field.replace(/_/g, " ")}</label>
+              <input
+                type="number"
+                name={field}
+                value={formData[field]}
+                onChange={handleChange}
+                required
+                style={inputStyle}
+              />
+            </div>
+          ))}
+
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              alignItems: "center",
+              gap: "1rem",
+            }}
+          >
+            <button type="submit" style={buttonStyle}>
+              SCRAPE
+            </button>
+            <button
+              type="button"
+              onClick={handleCreditEstimate}
+              style={{ ...buttonStyle, backgroundColor: "#ff9800" }}
+            >
+              CALCULATE CREDIT
+            </button>
+
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <label style={{ fontSize: "14px", marginBottom: "4px" }}>
+                Credits Bought
+              </label>
+              <input
+                type="number"
+                placeholder="Credits Bought"
+                value={creditsBought}
+                onChange={(e) => setCreditsBought(e.target.value)}
+                style={{ ...inputStyle, width: "130px" }}
+              />
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <label style={{ fontSize: "14px", marginBottom: "4px" }}>
+                Total Cost(in $)
+              </label>
+              <input
+                type="number"
+                placeholder="Total Cost"
+                value={totalCost}
+                onChange={(e) => setTotalCost(e.target.value)}
+                style={{ ...inputStyle, width: "130px" }}
+              />
+            </div>
+          </div>
+        </form>
+
+        {/* RIGHT: Notes */}
         <div
           style={{
-            display: "flex",
-            flexWrap: "wrap",
-            alignItems: "center",
-            gap: "1rem",
+            flex: 2,
+            backgroundColor: "#fff9e6",
+            padding: "1.5rem",
+            borderRadius: "10px",
+            boxShadow: "0 0 6px rgba(0,0,0,0.08)",
+            fontSize: "14px",
+            fontWeight: "bold",
+            lineHeight: "1.6",
           }}
         >
-          <button type="submit" style={buttonStyle}>
-            SCRAPE
-          </button>
-          <button
-            type="button"
-            onClick={handleCreditEstimate}
-            style={{ ...buttonStyle, backgroundColor: "#ff9800" }}
-          >
-            CALCULATE CREDIT
-          </button>
-
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <label style={{ fontSize: "14px", marginBottom: "4px" }}>
-              Credits Bought
-            </label>
-            <input
-              type="number"
-              placeholder="Credits Bought"
-              value={creditsBought}
-              onChange={(e) => setCreditsBought(e.target.value)}
-              style={{ ...inputStyle, width: "130px" }}
-            />
-          </div>
-
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <label style={{ fontSize: "14px", marginBottom: "4px" }}>
-              Total Cost(in $)
-            </label>
-            <input
-              type="number"
-              placeholder="Total Cost"
-              value={totalCost}
-              onChange={(e) => setTotalCost(e.target.value)}
-              style={{ ...inputStyle, width: "130px" }}
-            />
-          </div>
+          <h3 style={{ marginTop: 0 }}>📝 Notes</h3>
+          <ul style={{ paddingLeft: "1rem" }}>
+            <li>Keep the <strong>post_limit</strong> in multiples of <strong>50</strong> while scraping posts.</li>
+            <li>Keep the <strong>reaction_limit</strong> in multiples of <strong>49</strong>.</li>
+            <li>Keep the <strong>post_limit</strong> in multiples of <strong>100</strong> while scraping activity comments.</li>
+          </ul>
         </div>
-      </form>
+      </div>
 
       {loading && (
         <p style={{ textAlign: "center", marginTop: "1rem" }}>Loading...</p>
@@ -356,7 +386,10 @@ const Home = () => {
           >
             <pre>{JSON.stringify(creditEstimate, null, 2)}</pre>
             <p style={{ marginTop: "1rem", fontWeight: "bold" }}>
-              💰 Estimated Cost of Credits Used: ${calculatedCost}
+              💰 Estimated Maximum Cost of Credits Used: ${maximumCalculatedCost}
+            </p>
+            <p style={{ marginTop: "1rem", fontWeight: "bold" }}>
+              💰 Estimated Minimum Cost of Credits Used: ${minimumCalculatedCost}
             </p>
           </div>
         </div>
