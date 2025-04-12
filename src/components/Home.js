@@ -19,7 +19,7 @@ const Home = () => {
     post_reactions: "no",
     post_limit: 50,
     comment_limit: 100,
-    reaction_limit: 100,
+    reaction_limit: 49,
     media_flag: "no",
     caching : "no"
   });
@@ -265,15 +265,49 @@ const Home = () => {
 
           <hr style={{ margin: "1.5rem 0" }} />
 
-          <h3 style={{ marginBottom: "1rem" }}>Activity & Post Options</h3>
+          <h3 style={{ marginBottom: "1rem" }}>Tasks</h3>
           {[
             "profile_info",
             "post_scrap",
             "activity_comments",
-            "activity_reactions",
+            "activity_reactions"
+          ].map((field) => (
+            <div key={field} style={formSectionStyle}>
+              <label style={labelStyle}>{field.replace(/_/g, " ")}</label>
+              <select
+                name={field}
+                value={formData[field]}
+                onChange={handleChange}
+                style={selectStyle}
+              >
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+              </select>
+            </div>
+          ))}
+          <hr style={{ margin: "1.5rem 0" }} />
+          <h3 style={{ marginBottom: "1rem" }}>Configuartion for Posts (Only need to configure if task is post scrap, activity comments, activity reactions)</h3>
+          {[
             "post_comments",
             "post_reactions",
-            "media_flag",
+            "media_flag"
+          ].map((field) => (
+            <div key={field} style={formSectionStyle}>
+              <label style={labelStyle}>{field.replace(/_/g, " ")}</label>
+              <select
+                name={field}
+                value={formData[field]}
+                onChange={handleChange}
+                style={selectStyle}
+              >
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+              </select>
+            </div>
+          ))}
+          <hr style={{ margin: "1.5rem 0" }} />
+          <h3 style={{ marginBottom: "1rem" }}>Other options</h3>
+          {[
             "caching"
           ].map((field) => (
             <div key={field} style={formSectionStyle}>
@@ -289,6 +323,7 @@ const Home = () => {
               </select>
             </div>
           ))}
+
 
           <hr style={{ margin: "1.5rem 0" }} />
 
