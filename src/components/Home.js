@@ -213,6 +213,25 @@ const Home = () => {
         >
           📄 View Job Tracker
         </Link>
+        <Link
+          to="/scraper-docs"
+          style={{
+            textDecoration: "none",
+            padding: "0.5rem 1rem",
+            backgroundColor: "#0070f3",
+            color: "#fff",
+            borderRadius: "6px",
+            fontWeight: "bold",
+            fontSize: "0.9rem",
+            whiteSpace: "nowrap",
+            boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)",
+            transition: "background 0.3s ease",
+          }}
+          onMouseEnter={(e) => (e.target.style.backgroundColor = "#005dc1")}
+          onMouseLeave={(e) => (e.target.style.backgroundColor = "#0070f3")}
+        >
+          📄 Scraper Doc
+        </Link>
       </div>
 
       <div style={{ display: "flex", gap: "2rem", alignItems: "flex-start" }}>
@@ -265,7 +284,7 @@ const Home = () => {
 
           <hr style={{ margin: "1.5rem 0" }} />
 
-          <h3 style={{ marginBottom: "1rem" }}>Tasks</h3>
+          {/* <h3 style={{ marginBottom: "1rem" }}>Tasks</h3>
           {[
             "profile_info",
             "post_scrap",
@@ -284,10 +303,34 @@ const Home = () => {
                 <option value="no">No</option>
               </select>
             </div>
+          ))} */}
+
+          <h3 style={{ marginBottom: "1rem" }}>Tasks</h3>
+          {[
+            { field: "profile_info", description: "Extracts profile information only (no post-related data)." },
+            { field: "post_scrap", description: "Scrapes posts created by the user." },
+            { field: "activity_comments", description: "Scrapes posts the user has commented on." },
+            { field: "activity_reactions", description: "Scrapes posts the user has reacted to." }
+          ].map(({ field, description }) => (
+            <div key={field} style={formSectionStyle}>
+              <label style={labelStyle}>
+                {field.replace(/_/g, " ")}
+                <div style={{ fontSize: "0.9rem", color: "#555", marginTop: "0.3rem" }}>{description}</div>
+              </label>
+              <select
+                name={field}
+                value={formData[field]}
+                onChange={handleChange}
+                style={selectStyle}
+              >
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+              </select>
+            </div>
           ))}
           <hr style={{ margin: "1.5rem 0" }} />
           <h3 style={{ marginBottom: "1rem" }}>Configuartion for Posts (Only need to configure if task is post scrap, activity comments, activity reactions)</h3>
-          {[
+          {/* {[
             "post_comments",
             "post_reactions",
             "media_flag"
@@ -304,14 +347,72 @@ const Home = () => {
                 <option value="no">No</option>
               </select>
             </div>
-          ))}
+          ))} */}
+
+            {[
+              {
+                field: "post_comments",
+                description: "To scrape commenters along with the posts",
+              },
+              {
+                field: "post_reactions",
+                description: "To scrape reactors along with the posts",
+              },
+              {
+                field: "media_flag",
+                description: "To save images in raw binary format along with the URL",
+              }
+            ].map(({ field, description }) => (
+              <div key={field} style={formSectionStyle}>
+                <label style={labelStyle}>
+                  {field.replace(/_/g, " ")}
+                  <div style={{ fontSize: "0.9rem", color: "#555", marginTop: "0.3rem" }}>
+                    {description}
+                  </div>
+                </label>
+                <select
+                  name={field}
+                  value={formData[field]}
+                  onChange={handleChange}
+                  style={selectStyle}
+                >
+                  <option value="yes">Yes</option>
+                  <option value="no">No</option>
+                </select>
+              </div>
+            ))}
           <hr style={{ margin: "1.5rem 0" }} />
           <h3 style={{ marginBottom: "1rem" }}>Other options</h3>
-          {[
+          {/* {[
             "caching"
           ].map((field) => (
             <div key={field} style={formSectionStyle}>
               <label style={labelStyle}>{field.replace(/_/g, " ")}</label>
+              <select
+                name={field}
+                value={formData[field]}
+                onChange={handleChange}
+                style={selectStyle}
+              >
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+              </select>
+            </div>
+          ))} */}
+
+          {[
+            {
+              field: "caching",
+              description: "To read data from the database if available instead of scraping fresh data",
+            }
+          ].map(({ field, description }) => (
+            <div key={field} style={formSectionStyle}>
+              <label style={labelStyle}>
+                {field.replace(/_/g, " ")}
+                <div style={{ fontSize: "0.9rem", color: "#555", marginTop: "0.3rem" }}>
+                  {description}
+                </div>
+              </label>
               <select
                 name={field}
                 value={formData[field]}

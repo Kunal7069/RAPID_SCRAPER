@@ -4,6 +4,7 @@ import { Routes, Route } from 'react-router-dom';
 import Home from './components/Home';
 import JobTracker from './components/JobTracker';
 import TokenPrompt from './components/TokenPrompt';
+import LinkedInScraperDocs from './components/LinkedInScraperDocs'; 
 
 function App() {
   const [tokenValidated, setTokenValidated] = useState(false);
@@ -31,6 +32,7 @@ function App() {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/job-tracker" element={<JobTracker />} />
+      <Route path="/scraper-docs" element={<LinkedInScraperDocs />} />
     </Routes>
   );
 }
