@@ -21,6 +21,7 @@ const Home = () => {
     comment_limit: 100,
     reaction_limit: 100,
     media_flag: "no",
+    caching : "no"
   });
 
   const [response, setResponse] = useState(null);
@@ -32,17 +33,52 @@ const Home = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  
+
+  const getNextMultiple = (value, multiple) => {
+    const num = parseInt(value, 10);
+    if (num % multiple === 0) return num;
+    return Math.ceil(num / multiple) * multiple;
+  };
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setResponse(null);
+  
+    let adjustedFormData = { ...formData };
+    
+    if(formData.caching === "no"){
+      if(formData.post_scrap === "yes" || formData.activity_comments === "yes" || formData.activity_reactions === "yes"){
+        const adjustBatchSizes = window.confirm(
+          "Do you want to adjust to ideal batch sizes?"
+        );
+      
+        if (adjustBatchSizes) {
+          if (formData.post_scrap === "yes") {
+            adjustedFormData.post_limit = getNextMultiple(formData.post_limit, 50);
+          }
+          if (formData.post_reactions === "yes") {
+            adjustedFormData.reaction_limit = getNextMultiple(formData.reaction_limit, 49);
+          }
+          if (formData.activity_comments === "yes") {
+            adjustedFormData.post_limit = getNextMultiple(formData.post_limit, 100);
+          }
+          // Update local formData state (optional, only if you want to reflect adjusted values in UI)
+          setFormData(adjustedFormData);
+      }
+      
+      }
+    }
+    
+  
     try {
-      const { access_token, ...bodyData } = formData;
+      const { access_token, ...bodyData } = adjustedFormData;
       const res = await fetch("https://vigil-6sgu.onrender.com/rapid/get-activity-data", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${formData.access_token}`,
+          Authorization: `Bearer ${adjustedFormData.access_token}`,
         },
         body: JSON.stringify(bodyData),
       });
@@ -238,6 +274,7 @@ const Home = () => {
             "post_comments",
             "post_reactions",
             "media_flag",
+            "caching"
           ].map((field) => (
             <div key={field} style={formSectionStyle}>
               <label style={labelStyle}>{field.replace(/_/g, " ")}</label>
