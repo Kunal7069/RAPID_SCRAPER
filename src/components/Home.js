@@ -352,7 +352,7 @@ const Home = () => {
             {[
               {
                 field: "post_comments",
-                description: "To scrape commenters along with the posts",
+                description: "To scrape commentors along with the posts",
               },
               {
                 field: "post_reactions",
